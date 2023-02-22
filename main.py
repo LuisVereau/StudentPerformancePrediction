@@ -59,7 +59,6 @@ def prep_parameters(setup):
         
     return [removable_features, epochs]
 
-
 df1 = pd.read_csv('./student-por.csv', sep=';')
 df2 = pd.read_csv('./student-mat.csv', sep=';')
 frames = [df1, df2]
@@ -75,6 +74,7 @@ setup = print("""A previsão podera ser feita utilizando 6 configurações difer
         6 - Classificação em 5 níveis, atributos G1 e G2 excluídos.
         Informe a configuração desejada: """)
 print('-'*75)
+
 
 setup = input('Informe a configuração desejada: ')
 parameters = prep_parameters(setup)
@@ -111,27 +111,28 @@ my_models = list()
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=seed[1])
 
+print(len(X_train))
 for train, val in kf.split(X_train, y_train):
     fold += 1
 
-    X_train = X[train]
-    y_train = y[train]
-    X_val = X[val]
-    y_val = y[val]
+    X_train_k = X_train[train]
+    y_train_k = y_train[train]
+    X_val_k = X_train[val]
+    y_val_k = y_train[val]
 
     model = models.Sequential(
         [    
-            layers.Dense(units=32, input_dim=input_dim, activation='sigmoid'),
-            layers.Dense(units=16, activation='sigmoid'),
-            layers.Dense(units=8, activation='sigmoid'),
+            layers.Dense(units=200, input_dim=input_dim, activation='sigmoid'),
+            layers.Dense(units=100, activation='sigmoid'),
+            layers.Dense(units=50, activation='sigmoid'),
             layers.Dense(units=output_num, activation='softmax')
         ]
     )    
 
     model.compile(optimizer=keras.optimizers.Adam(learning_rate), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-    model.fit(X_train, y_train, epochs=max_epochs, validation_data=(X_val, y_val))
+    model.fit(X_train_k, y_train_k, epochs=max_epochs, validation_data=(X_val_k, y_val_k))
 
-    evaluation = model.evaluate(X_val, y_val)
+    evaluation = model.evaluate(X_val_k, y_val_k)
     accuracy_history.append(evaluation[1])
     my_models.append(model)
 
